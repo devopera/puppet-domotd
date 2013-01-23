@@ -11,12 +11,12 @@ class domotd {
    }
 
    # store current date and time
-   $date = inline_template('<%= Time.now.strftime("%l:%M %p on %Y-%m-%d") %>')
+   $date = inline_template('<%=Time.now.strftime("%H:%M on %Y-%m-%d")%>')
 
    # create motd using general and custom facts
    concat::fragment{"motd_header":
       target => $motd,
-      content => "${::hostname} server, ${::processorcount} cores, ${::memorytotal} RAM, ${::operatingsystem} ${::operatingsystemrelease}, ${::environment} environment:\n${::fqdn} ${::ipaddress} [${::macaddress}]\nConfigured at ${date} with profile: ${::server_profile}\n",
+      content => "----${::hostname}------------------------------------------\n${::processorcount} cores, ${::memorytotal} RAM, ${::operatingsystem} ${::operatingsystemrelease}, ${::environment} environment\n${::fqdn} ${::ipaddress} [${::macaddress}]\nConfigured at ${date} with profile: ${::server_profile}\n",
       order   => 01,
    }
 
