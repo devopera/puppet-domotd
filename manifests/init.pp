@@ -16,7 +16,7 @@ class domotd {
    # create motd using general and custom facts
    concat::fragment{"motd_header":
       target => $motd,
-      content => "----${::hostname}------------------------------------------\n${::processorcount} cores, ${::memorytotal} RAM, ${::operatingsystem} ${::operatingsystemrelease}, ${::environment} environment\n${::fqdn} ${::ipaddress} [${::macaddress}]\nConfigured at ${date} with profile: ${::server_profile}\n",
+      content => "----${::hostname}------------------------------------------\n${::processorcount} cores, ${::memorytotal} RAM, ${::operatingsystem} ${::operatingsystemrelease}, ${::environment} environment\n${::fqdn} ${::ipaddress} [${::macaddress}]\nConfigured at ${date} with profile: ${::server_profile}\n----${::hostname}------------------------ devopera.com ----\n",
       order   => 01,
    }
 
