@@ -1,4 +1,3 @@
-#!/bin/bash
 
 # cache facter output for repeat grepping
 facter=`facter`

@@ -29,30 +29,55 @@ class domotd (
   # dynamically update it on login
   if $use_dynamics {
     concat{ "${motd}.template" :
-      owner => root,
-      group => root,
+      owner => 'root',
+      group => 'root',
       mode  => '0644',
     }
     # write message to template
-    concat::fragment{"motd_template_header":
+    concat::fragment { 'motd_template_header' :
       target  => "${motd}.template",
       # note only partial substitution (% = dynamic, $ = 'static')
-      content => "----%{::hostname}------------------------------------------\n%{::processorcount} cores, %{::memorytotal} RAM, %{::operatingsystem} %{::operatingsystemrelease}, ${::environment} environment\n%{::fqdn} %{::ipaddress} [%{::macaddress}]\nConfigured at ${date} with profile: ${::server_profile}\n----%{::hostname}------------------------ devopera.com ----\n",
+      content => "----%{::hostname}------------------------------------------\n%{::processorcount} cores, %{::memorytotal} RAM, %{::operatingsystem} %{::operatingsystemrelease}, ${::environment} environment\n%{::fqdn} %{::ipaddress} [%{::macaddress}]\nConfigured at ${date} with profile: ${::server_profile}\n----%{::hostname}---- dynamic update ---- devopera.com ----\n",
       order   => 01,
-    }->
-    # setup script to replace message on login
-    file { "${script_exec_directory}/motd.sh" :
-      source => 'puppet:///modules/domotd/motd.sh',
+    }
+    # check that rc.local is setup the right way
+    file {'/etc/rc.local':
+      ensure => symlink,
+      target => '/etc/rc.d/rc.local',
       owner => 'root',
       group => 'root',
-      mode => 0644,
+      mode  => '0777',
     }
+    # setup rc.local for concat'ing bits onto the end
+    concat{ '/etc/rc.d/rc.local' :
+      owner => root,
+      group => root,
+      mode  => '0755',
+    }
+    # create a basic standard rc.local file
+    concat::fragment { "concat_motd_initial_rc" :
+      target  => '/etc/rc.d/rc.local',
+      source => 'puppet:///modules/domotd/rc.local',
+      order  => 01,
+    }
+    # add script content rc.local to replace message on machine startup
+    concat::fragment { "concat_motd_sh" :
+      target  => '/etc/rc.d/rc.local',
+      source => 'puppet:///modules/domotd/motd.sh',
+      order  => 50,
+    }
+    # local appends must go to the template to avoid being lost
+    $local_input = "${motd}.template"
+  } else {
+    # no dynamics mean that local input can go straight to motd
+    $local_input = "${motd}"
   }
 
   # local users on the machine can append to motd by just creating
-  # /etc/motd.local
+  # /etc/motd.local, which then gets appended to the template and copied
+  # into /etc/motd
   concat::fragment{"motd_local":
-    target => $motd,
+    target => $local_input,
     ensure  => "/etc/motd.local",
     order   => 15
   }
