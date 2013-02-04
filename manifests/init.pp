@@ -22,8 +22,13 @@ class domotd (
   # create static motd using general and custom facts
   concat::fragment{"motd_header":
     target    => $motd,
-    content   => "----${::hostname}------------------------------------------\n${::processorcount} cores, ${::memorytotal} RAM, ${::operatingsystem} ${::operatingsystemrelease}, ${::environment} environment\n${::fqdn} ${::ipaddress} [${::macaddress}]\nConfigured at ${date} with profile: ${::server_profile}\n----${::hostname}------------------------ devopera.com ----\n",
+    content   => "----${::hostname}------------------------------------------\n${::processorcount} cores, ${::memorytotal} RAM, ${::operatingsystem} ${::operatingsystemrelease}, ${::environment} environment\n${::fqdn} ${::ipaddress} [${::macaddress}]\nConfigured at ${date} with profile: ${::server_profile}\nAvailable services: ",
     order     => 01,
+  }
+  concat::fragment{"motd_footer":
+    target    => $motd,
+    content   => "\n----${::hostname}------------------------ devopera.com ----\n",
+    order     => 98,
   }
 
   # dynamically update it on login
@@ -37,9 +42,15 @@ class domotd (
     concat::fragment { 'motd_template_header' :
       target  => "${motd}.template",
       # note only partial substitution (% = dynamic, $ = 'static')
-      content => "----%{::hostname}------------------------------------------\n%{::processorcount} cores, %{::memorytotal} RAM, %{::operatingsystem} %{::operatingsystemrelease}, ${::environment} environment\n%{::fqdn} %{::ipaddress} [%{::macaddress}]\nConfigured at ${date} with profile: ${::server_profile}\n----%{::hostname}---- dynamic update ---- devopera.com ----\n",
+      content => "----%{::hostname}------------------------------------------\n%{::processorcount} cores, %{::memorytotal} RAM, %{::operatingsystem} %{::operatingsystemrelease}, ${::environment} environment\n%{::fqdn} %{::ipaddress} [%{::macaddress}]\nConfigured at ${date} with profile: ${::server_profile}\nAvailable services: ",
       order   => 01,
     }
+    concat::fragment { 'motd_template_footer' :
+      target  => "${motd}.template",
+      content => "\n----%{::hostname}------------------------ devopera.com --(d\n",
+      order   => 98,
+    }
+    
     # check that rc.local is setup the right way
     file {'/etc/rc.local':
       ensure => symlink,
