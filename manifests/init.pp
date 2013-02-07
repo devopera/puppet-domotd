@@ -92,4 +92,8 @@ class domotd (
     ensure  => "/etc/motd.local",
     order   => 15
   }
+  
+  # realize all the register calls
+  Domotd::Register <| |>
+
 }

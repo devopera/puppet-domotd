@@ -2,6 +2,7 @@ define domotd::register(
   $content = $name,
   $order = 10,
   $motd = '/etc/motd',
+  $append = ' ',
 ) {
 
   # add content directly to /etc/motd
@@ -9,7 +10,7 @@ define domotd::register(
     # add fragment to target file
     concat::fragment{"motd_fragment_$name":
       target  => $motd,
-      content => "$content",
+      content => "${content}${append}",
       order => $order,
     }
   }
@@ -18,7 +19,7 @@ define domotd::register(
   if defined(Concat["${motd}.template"]) {
     concat::fragment{"motd_fragment_template_$name":
       target  => "${motd}.template",
-      content => "$content",
+      content => "${content}${append}",
       order => $order,
     }
   }
