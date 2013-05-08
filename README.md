@@ -3,6 +3,13 @@ puppet-domotd
 
 Devopera puppet module for setting up a message of the day (motd)
 
+Changelog
+---------
+
+2013-05-08
+
+* Added /etc/issue message to show IP/MAC address before login
+
 Copyright and License
 ---------------------
 

@@ -92,6 +92,12 @@ class domotd (
     ensure  => "/etc/motd.local",
     order   => 15
   }
+
+  # add the IP address to /etc/issue to show above login prompt
+  file { 'domotd-setup-issue' :
+    path => '/etc/issue',
+    content => template('domotd/issue.erb'),
+  }
   
   # realize all the register calls
   Domotd::Register <| |>
