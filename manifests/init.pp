@@ -6,11 +6,17 @@ class domotd (
   $use_dynamics = false,
   # @todo move to params
   $motd = '/etc/motd',
+  $issue = '/etc/issue',
   $script_exec_directory = '/etc/rc.local',
 ) {
 
-  # setup the motd file for concatenation
+  # setup the motd and issue files for concatenation
   concat{ "${motd}" :
+    owner => root,
+    group => root,
+    mode  => '0644',
+  }
+  concat{ "${issue}" :
     owner => root,
     group => root,
     mode  => '0644',
@@ -30,15 +36,27 @@ class domotd (
     content   => "\n----${::hostname}------------------------ devopera.com ----\n",
     order     => 98,
   }
+  # create static issue using general facts and issue substitution (\r,\m)
+  concat::fragment{"issue_header":
+    target    => $issue,
+    content   => "${::operatingsystem} release ${::operatingsystemrelease}\nKernel \\r on an \\m\neth IP ${::ipaddress} [${::macaddress}]\n\n",
+    order     => 01,
+  }
 
-  # dynamically update it on login
+  # dynamically update motd/issue using rc.local
   if $use_dynamics {
+    # setup the motd and issue template files
     concat{ "${motd}.template" :
       owner => 'root',
       group => 'root',
       mode  => '0644',
     }
-    # write message to template
+    concat{ "${issue}.template" :
+      owner => 'root',
+      group => 'root',
+      mode  => '0644',
+    }
+    # write message to templates using partial substitution
     concat::fragment { 'motd_template_header' :
       target  => "${motd}.template",
       # note only partial substitution (% = dynamic, $ = 'static')
@@ -49,6 +67,11 @@ class domotd (
       target  => "${motd}.template",
       content => "\n----%{::hostname}------------------------ devopera.com --(d\n",
       order   => 98,
+    }
+    concat::fragment{"issue_template_header":
+      target    => "${issue}.template",
+      content   => "${::operatingsystem} release ${::operatingsystemrelease}\nKernel \\r on an \\m\neth IP %{::ipaddress} [%{::macaddress}]\n\n",
+      order     => 01,
     }
     
     # check that rc.local is setup the right way
@@ -93,12 +116,6 @@ class domotd (
     order   => 15
   }
 
-  # add the IP address to /etc/issue to show above login prompt
-  file { 'domotd-setup-issue' :
-    path => '/etc/issue',
-    content => template('domotd/issue.erb'),
-  }
-  
   # realize all the register calls
   Domotd::Register <| |>
 

@@ -6,9 +6,13 @@ Devopera puppet module for setting up a message of the day (motd)
 Changelog
 ---------
 
+2013-09-03
+
+  * /etc/issue now dynamically generated from /etc/issue.template like motd.template
+
 2013-05-08
 
-* Added /etc/issue message to show IP/MAC address before login
+  * Added /etc/issue message to show IP/MAC address before login
 
 Copyright and License
 ---------------------
