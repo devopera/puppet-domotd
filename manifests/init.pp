@@ -112,8 +112,7 @@ class domotd (
   # into /etc/motd
   concat::fragment{"motd_local":
     target => $local_input,
-    ensure  => "/etc/motd.local",
-    order   => 15
+    order  => 15
   }
 
   # realize all the register calls
