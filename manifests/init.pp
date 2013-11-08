@@ -73,30 +73,45 @@ class domotd (
       content   => "${::operatingsystem} release ${::operatingsystemrelease}\nKernel \\r on an \\m\neth IP %{::ipaddress} [%{::macaddress}]\n\n",
       order     => 01,
     }
-    
-    # check that rc.local is setup the right way
-    file {'/etc/rc.local':
-      ensure => symlink,
-      target => '/etc/rc.d/rc.local',
-      owner => 'root',
-      group => 'root',
-      mode  => '0777',
+
+    case $operatingsystem {
+      centos, redhat, fedora: {
+        # check that rc.local is setup as a symlink
+        # can't use file resource because it triggers file resource collision
+        # file { 'domotd-rc-local-symlink':
+        #   ensure => symlink,
+        #   path   => '/etc/rc.local',
+        #   target => '/etc/rc.d/rc.local',
+        #   owner  => 'root',
+        #   group  => 'root',
+        #   mode   => '0777',
+        #   before => [Concat['/etc/rc.local']],
+        # }
+        #
+        # try and create the symlink if there's not a file there already
+        exec { 'domotd-rc-local-symlink':
+          path => '/usr/bin:/bin',
+          command => 'ln -s /etc/rc.d/rc.local /etc/rc.local',
+          onlyif => 'bash -c "! test -f /etc/rc.local"',
+          before => [Concat['/etc/rc.local']],
+        }
+      }
     }
     # setup rc.local for concat'ing bits onto the end
-    concat{ '/etc/rc.d/rc.local' :
+    concat{ '/etc/rc.local' :
       owner => root,
       group => root,
       mode  => '0755',
     }
     # create a basic standard rc.local file
     concat::fragment { "concat_motd_initial_rc" :
-      target  => '/etc/rc.d/rc.local',
+      target  => '/etc/rc.local',
       source => 'puppet:///modules/domotd/rc.local',
       order  => 01,
     }
     # add script content rc.local to replace message on machine startup
     concat::fragment { "concat_motd_sh" :
-      target  => '/etc/rc.d/rc.local',
+      target  => '/etc/rc.local',
       source => 'puppet:///modules/domotd/motd.sh',
       order  => 50,
     }
