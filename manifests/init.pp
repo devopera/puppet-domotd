@@ -4,10 +4,11 @@
 class domotd (
   # true for the machine to substitute (most) parameters on login
   $use_dynamics = false,
-  # @todo move to params
   $motd = '/etc/motd',
   $issue = '/etc/issue',
-  $script_exec_directory = '/etc/rc.local',
+  # was this
+  # $rc_local_target = '/etc/rc.local',
+  $rc_local_target = '/etc/rc.d/rc.local',
 ) {
 
   # setup the motd and issue files for concatenation
@@ -88,30 +89,35 @@ class domotd (
         #   before => [Concat['/etc/rc.local']],
         # }
         #
-        # try and create the symlink if there's not a file there already
+        # create a symlink and overwrite any previous file (if one exists)
+        exec { 'domotd-rc-local-clear-old-file':
+          path => '/usr/bin:/bin',
+          command => 'rm -f /etc/rc.local',
+          onlyif => 'bash -c "test -f /etc/rc.local"',
+        }->
+        # force the symlink, because otherwise we can end up with two different files
         exec { 'domotd-rc-local-symlink':
           path => '/usr/bin:/bin',
-          command => 'ln -s /etc/rc.d/rc.local /etc/rc.local',
-          onlyif => 'bash -c "! test -f /etc/rc.local"',
-          before => [Concat['/etc/rc.local']],
+          command => "ln -s ${rc_local_target} /etc/rc.local",
+          before => [Concat["${rc_local_target}"]],
         }
       }
     }
     # setup rc.local for concat'ing bits onto the end
-    concat{ '/etc/rc.local' :
+    concat{ "${rc_local_target}" :
       owner => root,
       group => root,
       mode  => '0755',
     }
     # create a basic standard rc.local file
     concat::fragment { "concat_motd_initial_rc" :
-      target  => '/etc/rc.local',
+      target  => $rc_local_target,
       source => 'puppet:///modules/domotd/rc.local',
       order  => 01,
     }
     # add script content rc.local to replace message on machine startup
     concat::fragment { "concat_motd_sh" :
-      target  => '/etc/rc.local',
+      target  => $rc_local_target,
       source => 'puppet:///modules/domotd/motd.sh',
       order  => 50,
     }
