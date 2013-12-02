@@ -7,7 +7,7 @@ function find_fact {
 }
 
 # update motd if template file exists
-if [ -f /etc/motd.template ]
+if [ -f <%= motd_template %> ]
 then
   eval "sed \
    -e 's/\%{::hostname}/$(find_fact "hostname")/g' \
@@ -18,11 +18,11 @@ then
    -e 's/\%{::fqdn}/$(find_fact "fqdn")/g' \
    -e 's/\%{::ipaddress}/$(find_fact "ipaddress")/g' \
    -e 's/\%{::macaddress}/$(find_fact "macaddress")/g' \
-   /etc/motd.template > /etc/motd"
+   <%= motd_template %> > <%= motd %>"
 fi
 
 # update issue.erb if template file exists
-if [ -f /etc/issue.template ]
+if [ -f <%= issue_template %> ]
 then
   eval "sed \
    -e 's/\%{::hostname}/$(find_fact "hostname")/g' \
@@ -33,5 +33,7 @@ then
    -e 's/\%{::fqdn}/$(find_fact "fqdn")/g' \
    -e 's/\%{::ipaddress}/$(find_fact "ipaddress")/g' \
    -e 's/\%{::macaddress}/$(find_fact "macaddress")/g' \
-   /etc/issue.template > /etc/issue"
+   <%= issue_template %> > <%= issue %>"
 fi
+
+exit 0

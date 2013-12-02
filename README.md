@@ -3,8 +3,18 @@ puppet-domotd
 
 Devopera puppet module for setting up a message of the day (motd)
 
+How it works
+------------
+
+In CentOS, the message of the day lives in /etc/motd.  It is optionally updated from a template in /etc/motd.template by a script appended to /etc/rc.local.
+In Ubuntu, the message of the day is typically composed from fragments in /etc/update-motd.d/*.  We therefore compose the motd in a temporary folder (/etc/puppet/tmp), optionally from a template in the same directory.  update-motd.d/15-devopera-motd then displays content from that temporary folder.
+
 Changelog
 ---------
+
+2013-09-28
+
+  * rewritten for both CentOS and Ubuntu
 
 2013-09-03
 
