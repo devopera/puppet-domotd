@@ -35,7 +35,7 @@ class domotd (
     # create static motd using general and custom facts
     concat::fragment{"motd_header":
       target    => $motd,
-      content   => "----${::hostname}------------------------------------------\n${::processorcount} cores, ${::memorytotal} RAM, ${::operatingsystem} ${::operatingsystemrelease}, ${::environment} environment\n${::fqdn} ${::ipaddress} [${::macaddress}]\nConfigured at ${date} with profile: ${::server_profile}\nAvailable services: ",
+      content   => "----${::hostname}------------------------------------------\n${::processorcount} cores, ${::memorysize} RAM, ${::operatingsystem} ${::operatingsystemrelease}, ${::environment} environment\n${::fqdn} ${::ipaddress} [${::macaddress}]\nConfigured at ${date} with profile: ${::server_profile}\nAvailable services: ",
       order     => 01,
     }
     concat::fragment{"motd_footer":
@@ -56,7 +56,7 @@ class domotd (
     concat::fragment { 'motd_template_header' :
       target  => "${motd_template}",
       # note only partial substitution (% = dynamic, $ = 'static')
-      content => "----%{::hostname}------------------------------------------\n%{::processorcount} cores, %{::memorytotal} RAM, %{::operatingsystem} %{::operatingsystemrelease}, ${::environment} environment\n%{::fqdn} %{::ipaddress} [%{::macaddress}]\nConfigured at ${date} with profile: ${::server_profile}\nAvailable services: ",
+      content => "----%{::hostname}------------------------------------------\n%{::processorcount} cores, %{::memorysize} RAM, %{::operatingsystem} %{::operatingsystemrelease}, ${::environment} environment\n%{::fqdn} %{::ipaddress} [%{::macaddress}]\nConfigured at ${date} with profile: ${::server_profile}\nAvailable services: ",
       order   => 01,
     }
     concat::fragment { 'motd_template_footer' :
