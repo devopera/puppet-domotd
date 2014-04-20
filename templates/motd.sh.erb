@@ -12,7 +12,7 @@ then
   eval "sed \
    -e 's/\%{::hostname}/$(find_fact "hostname")/g' \
    -e 's/\%{::processorcount}/$(find_fact "processorcount")/g' \
-   -e 's/\%{::memorytotal}/$(find_fact "memorytotal")/g' \
+   -e 's/\%{::memorysize}/$(find_fact "memorysize")/g' \
    -e 's/\%{::operatingsystem}/$(find_fact "operatingsystem")/g' \
    -e 's/\%{::operatingsystemrelease}/$(find_fact "operatingsystemrelease")/g' \
    -e 's/\%{::fqdn}/$(find_fact "fqdn")/g' \
@@ -27,7 +27,7 @@ then
   eval "sed \
    -e 's/\%{::hostname}/$(find_fact "hostname")/g' \
    -e 's/\%{::processorcount}/$(find_fact "processorcount")/g' \
-   -e 's/\%{::memorytotal}/$(find_fact "memorytotal")/g' \
+   -e 's/\%{::memorysize}/$(find_fact "memorysize")/g' \
    -e 's/\%{::operatingsystem}/$(find_fact "operatingsystem")/g' \
    -e 's/\%{::operatingsystemrelease}/$(find_fact "operatingsystemrelease")/g' \
    -e 's/\%{::fqdn}/$(find_fact "fqdn")/g' \
