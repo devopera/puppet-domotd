@@ -52,11 +52,18 @@ class domotd (
       group => 'root',
       mode  => '0644',
     }
+
+    # include profile information only if set
+    $server_profile_append = ''
+    if ($server_profile) {
+      $server_profile_append = "with profile: ${::server_profile}"
+    }
+
     # write message to templates using partial substitution
     concat::fragment { 'motd_template_header' :
       target  => "${motd_template}",
       # note only partial substitution (% = dynamic, $ = 'static')
-      content => "----%{::hostname}------------------------------------------\n%{::processorcount} cores, %{::memorysize} RAM, %{::operatingsystem} %{::operatingsystemrelease}, ${::environment} environment\n%{::fqdn} %{::ipaddress} [%{::macaddress}]\nConfigured at ${date} with profile: ${::server_profile}\nAvailable services: ",
+      content => "----%{::hostname}------------------------------------------\n%{::processorcount} cores, %{::memorysize} RAM, %{::operatingsystem} %{::operatingsystemrelease}, ${::environment} environment\n%{::fqdn} %{::ipaddress} [%{::macaddress}]\nConfigured at ${date} ${server_profile_append}\nAvailable services: ",
       order   => 01,
     }
     concat::fragment { 'motd_template_footer' :
