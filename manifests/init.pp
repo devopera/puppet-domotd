@@ -22,6 +22,12 @@ class domotd (
 
 ) inherits domotd::params {
 
+  # include profile information only if set
+  $server_profile_append = ''
+  if ($::server_profile and length($::server_profile) > 0) {
+    $server_profile_append = "with profile: ${::server_profile}"
+  }
+
   # store current date and time
   $date = inline_template('<%=Time.now.strftime("%H:%M on %Y-%m-%d")%>')
 
@@ -35,7 +41,7 @@ class domotd (
     # create static motd using general and custom facts
     concat::fragment{"motd_header":
       target    => $motd,
-      content   => "----${::hostname}------------------------------------------\n${::processorcount} cores, ${::memorysize} RAM, ${::operatingsystem} ${::operatingsystemrelease}, ${::environment} environment\n${::fqdn} ${::ipaddress} [${::macaddress}]\nConfigured at ${date} with profile: ${::server_profile}\nAvailable services: ",
+      content   => "----${::hostname}------------------------------------------\n${::processorcount} cores, ${::memorysize} RAM, ${::operatingsystem} ${::operatingsystemrelease}, ${::environment} environment\n${::fqdn} ${::ipaddress} [${::macaddress}]\nConfigured at ${date} ${server_profile_append}\nAvailable services: ",
       order     => 01,
     }
     concat::fragment{"motd_footer":
@@ -51,12 +57,6 @@ class domotd (
       owner => 'root',
       group => 'root',
       mode  => '0644',
-    }
-
-    # include profile information only if set
-    $server_profile_append = ''
-    if ($server_profile) {
-      $server_profile_append = "with profile: ${::server_profile}"
     }
 
     # write message to templates using partial substitution
