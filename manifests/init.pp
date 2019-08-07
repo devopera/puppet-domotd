@@ -23,9 +23,10 @@ class domotd (
 ) inherits domotd::params {
 
   # include profile information only if set
-  $server_profile_append = ''
-  if ($::server_profile and length($::server_profile) > 0) {
+  if ($::server_profile) {
     $server_profile_append = "with profile: ${::server_profile}"
+  } else {
+    $server_profile_append = ''
   }
 
   # store current date and time
